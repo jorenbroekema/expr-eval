@@ -5,6 +5,10 @@ JavaScript Expression Evaluator
 [![CDNJS version](https://img.shields.io/cdnjs/v/expr-eval.svg?maxAge=3600)](https://cdnjs.com/libraries/expr-eval)
 [![Build Status](https://travis-ci.org/silentmatt/expr-eval.svg?branch=master)](https://travis-ci.org/silentmatt/expr-eval)
 
+> This fork addresses https://github.com/silentmatt/expr-eval/issues/266, security fix has been committed but was never released to NPM
+> Therefore, we publish expr-eval-fork to NPM to work around this issue.
+> If expr-eval ever gets released, raise an issue and we'll deprecate this fork.
+
 Description
 -------------------------------------
 
