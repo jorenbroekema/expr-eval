@@ -1,5 +1,26 @@
 import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IEXPREVAL, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
 
+/**
+ * Checks if a function reference 'f' is explicitly allowed to be executed.
+ * This logic is the core security allowance gate.
+ */
+function isAllowedFunc(f, expr, values) {
+  for (var key in expr.functions) {
+    if (expr.functions[key] === f) return true;
+  }
+
+  if (f.__expr_eval_safe_def) return true;
+
+  for (var vKey in values) {
+    if (typeof values[vKey] === 'object' && values[vKey] !== null) {
+      for (var subKey in values[vKey]) {
+        if (values[vKey][subKey] === f) return true;
+      }
+    }
+  }
+  return false;
+}
+
 export default function evaluate(tokens, expr, values) {
   var nstack = [];
   var n1, n2, n3;
@@ -50,7 +71,12 @@ export default function evaluate(tokens, expr, values) {
         nstack.push(expr.unaryOps[item.value]);
       } else {
         var v = values[item.value];
+
         if (v !== undefined) {
+          if (typeof v === 'function' && !isAllowedFunc(v, expr, values)) {
+            /* function is not registered, not marked safe, and not a member function. BLOCKED. */
+            throw new Error('Variable references an unallowed function: ' + item.value);
+          }
           nstack.push(v);
         } else {
           throw new Error('undefined variable: ' + item.value);
@@ -67,6 +93,9 @@ export default function evaluate(tokens, expr, values) {
         args.unshift(resolveExpression(nstack.pop(), values));
       }
       f = nstack.pop();
+      if (!isAllowedFunc(f, expr, values)) {
+        throw new Error('Is not an allowed function.');
+      }
       if (f.apply && f.call) {
         nstack.push(f.apply(undefined, args));
       } else {
@@ -92,6 +121,10 @@ export default function evaluate(tokens, expr, values) {
         // f.name = n1
         Object.defineProperty(f, 'name', {
           value: n1,
+          writable: false
+        });
+        Object.defineProperty(f, '__expr_eval_safe_def', {
+          value: true,
           writable: false
         });
         values[n1] = f;
