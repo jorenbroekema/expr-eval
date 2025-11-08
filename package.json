@@ -5,6 +5,9 @@
   "main": "dist/bundle.js",
   "module": "dist/index.mjs",
   "typings": "parser.d.ts",
+  "engines": {
+    "node": ">=16.9.0"
+  },
   "exports": {
     ".": {
       "types": "./parser.d.ts",

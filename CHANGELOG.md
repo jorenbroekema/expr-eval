@@ -6,6 +6,7 @@
 
 - BREAKING: `.evaluate()` no longer allows arbitrary and potentially malicious context to be passed for custom function strings. Such functions need to be defined on `Parser.functions`, e.g. `Parser.functions.f = () => {}` rather than `.evaluate({ f: () => {} })`. This fixes [CVE-2025-12735](https://github.com/advisories/GHSA-jc85-fpwf-qm7x).
 - BREAKING: add exports map to make usage with modern JS environments smoother, not requiring bundlers.
+- BREAKING: require Node 16.9.0 minimum, to support `Object.hasOwn` which is safer than its predecessor `Object.prototype.hasOwnPropery`.
 
 ## [2.0.2] - 2019-09-28
 
