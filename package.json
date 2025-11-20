@@ -1,6 +1,6 @@
 {
   "name": "expr-eval-fork",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Mathematical expression evaluator fork with exports map, prototype pollution and code injection security fixes",
   "main": "dist/bundle.js",
   "module": "dist/index.mjs",

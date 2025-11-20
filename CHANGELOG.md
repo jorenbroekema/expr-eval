@@ -1,4 +1,11 @@
 # Changelog
+# Changelog
+
+## [3.0.1] - 2025-11-20
+
+### Added
+
+- Additional fix for issue identified by @huydoppaz in https://github.com/silentmatt/expr-eval/issues/289
 
 ## [3.0.0] - 2025-11-07
 
