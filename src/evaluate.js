@@ -5,16 +5,22 @@ import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IE
  * This logic is the core security allowance gate.
  */
 function isAllowedFunc(f, expr, values) {
-  for (var key in expr.functions) {
-    if (expr.functions[key] === f) return true;
-  }
-
+  // function definition is included in registered functions
+  if (Object.values(expr.functions).includes(f)) return true;
+  // marked as safe already
   if (f.__expr_eval_safe_def) return true;
 
-  for (var vKey in values) {
-    if (typeof values[vKey] === 'object' && values[vKey] !== null) {
-      for (var subKey in values[vKey]) {
-        if (values[vKey][subKey] === f) return true;
+  for (const v of Object.values(values)) {
+    if (typeof v === 'object' && v !== null) {
+      for (const subV of Object.values(v)) {
+        if (subV === f) {
+          // allow Math functions
+          for (var key of Object.getOwnPropertyNames(Math)) {
+            if (Math[key] === subV) return true;
+          }
+          // function definition is included in registered functions
+          return Object.values(expr.functions).includes(subV);
+        }
       }
     }
   }
@@ -136,6 +142,16 @@ export default function evaluate(tokens, expr, values) {
       nstack.push(item);
     } else if (type === IMEMBER) {
       n1 = nstack.pop();
+      if (/^__proto__|prototype|constructor$/.test(item.value)) {
+        throw new Error('prototype access detected in MEMBER');
+      }
+      if (
+        typeof n1 === 'object' &&
+        typeof n1[item.value] === 'function' &&
+        !isAllowedFunc(n1[item.value], expr, values)
+      ) {
+        throw new Error('Is not an allowed function in MEMBER.');
+      }
       nstack.push(n1[item.value]);
     } else if (type === IENDSTATEMENT) {
       nstack.pop();
