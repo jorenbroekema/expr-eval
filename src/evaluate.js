@@ -7,16 +7,52 @@ import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IE
 function isAllowedFunc(f, expr, values) {
   // function definition is included in registered functions
   if (Object.values(expr.functions).includes(f)) return true;
-  // marked as safe already
-  if (f.__expr_eval_safe_def) return true;
 
   for (const v of Object.values(values)) {
     if (typeof v === 'object' && v !== null) {
       for (const subV of Object.values(v)) {
         if (subV === f) {
+          const SAFE_MATH = Object.freeze({
+            abs: Math.abs,
+            acos: Math.acos,
+            asin: Math.asin,
+            atan: Math.atan,
+            atan2: Math.atan2,
+            ceil: Math.ceil,
+            clz32: Math.clz32,
+            cos: Math.cos,
+            exp: Math.exp,
+            floor: Math.floor,
+            imul: Math.imul,
+            fround: Math.fround,
+            f16round: Math.f16round,
+            log: Math.log,
+            max: Math.max,
+            min: Math.min,
+            pow: Math.pow,
+            random: Math.random,
+            round: Math.round,
+            sin: Math.sin,
+            sqrt: Math.sqrt,
+            tan: Math.tan,
+            log10: Math.log10,
+            log2: Math.log2,
+            log1p: Math.log1p,
+            expm1: Math.expm1,
+            cosh: Math.cosh,
+            sinh: Math.sinh,
+            tanh: Math.tanh,
+            acosh: Math.acosh,
+            asinh: Math.asinh,
+            atanh: Math.atanh,
+            hypot: Math.hypot,
+            trunc: Math.trunc,
+            sign: Math.sign,
+            cbrt: Math.cbrt
+          });
           // allow Math functions
-          for (var key of Object.getOwnPropertyNames(Math)) {
-            if (Math[key] === subV) return true;
+          for (var key of Object.getOwnPropertyNames(SAFE_MATH)) {
+            if (SAFE_MATH[key] === subV) return true;
           }
           // function definition is included in registered functions
           return Object.values(expr.functions).includes(subV);
@@ -124,15 +160,7 @@ export default function evaluate(tokens, expr, values) {
           }
           return evaluate(n2, expr, scope);
         };
-        // f.name = n1
-        Object.defineProperty(f, 'name', {
-          value: n1,
-          writable: false
-        });
-        Object.defineProperty(f, '__expr_eval_safe_def', {
-          value: true,
-          writable: false
-        });
+        expr.functions['lambda_' + expr.functions.__counter++] = f;
         values[n1] = f;
         return f;
       })());
