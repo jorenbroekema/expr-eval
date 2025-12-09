@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.1] - 2025-12-07
+
+### Added
+
+- Additional fix for member access issue identified by @huydoppaz in https://github.com/silentmatt/expr-eval/issues/289 and advisory [CVE-2025-12735](https://github.com/advisories/GHSA-jc85-fpwf-qm7x), same as fix in previous version.
+
 ## [3.0.0] - 2025-11-07
 
 ### Added

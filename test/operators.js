@@ -171,8 +171,9 @@ describe('Operators', function () {
 
     it('evaluates rhs when lhs is true', function () {
       var called = spy(returnFalse);
-
-      assert.strictEqual(Parser.evaluate('true and spies.called()', { spies: { called: called } }), false);
+      var parser = new Parser();
+      parser.functions = { f: called };
+      assert.strictEqual(parser.evaluate('true and spies.called()', { spies: { called: called } }), false);
       assert.strictEqual(called.called, true);
     });
   });
@@ -212,7 +213,9 @@ describe('Operators', function () {
     it('evaluates rhs when lhs is false', function () {
       var called = spy(returnTrue);
 
-      assert.strictEqual(Parser.evaluate('false or spies.called()', { spies: { called: called } }), true);
+      var parser = new Parser();
+      parser.functions = { f: called };
+      assert.strictEqual(parser.evaluate('false or spies.called()', { spies: { called: called } }), true);
       assert.strictEqual(called.called, true);
     });
   });
