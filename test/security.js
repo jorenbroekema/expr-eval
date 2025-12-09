@@ -11,7 +11,9 @@ var childProcess = require('child_process');
 var context = {
   write: (path, data) => fs.writeFileSync(path, data),
   cmd: (cmd) => console.log('Executing:', cmd),
-  exec: childProcess.execSync
+  exec: childProcess.execSync,
+  evalFunc: eval,
+  FunctionConstructor: Function
 };
 
 describe('Security tests', function () {
@@ -67,5 +69,59 @@ describe('Security tests', function () {
     assert.throws(() => {
       parser.evaluate('test.write("pwned.txt","Hello!")', contextWrapper);
     }, Error);
+  });
+
+  describe('Prototype pollution and member function protection (lines 173-182)', function () {
+    it('should block __proto__ and prototype pollution attempts', function () {
+      var parser = new Parser();
+    
+      assert.throws(() => {
+        parser.evaluate('obj.__proto__', { obj: {} });
+      }, /prototype access detected in MEMBER/);
+      
+      assert.throws(() => {
+        parser.evaluate('obj.prototype', { obj: {} });
+      }, /prototype access detected in MEMBER/);
+      
+      assert.throws(() => {
+        parser.evaluate('user.config.__proto__.isAdmin = true', { user: { config: {} } });
+      }, /prototype access detected in MEMBER/);
+    });
+
+    it('should block dangerous function calls via member access but allow safe Math functions', function () {
+      var parser = new Parser();
+  
+      assert.throws(() => {
+        parser.evaluate('obj.write("evil.txt", "data")', { obj: context });
+      }, /Is not an allowed function in MEMBER/);
+      
+      assert.throws(() => {
+        parser.evaluate('obj.cmd("whoami")', { obj: context });
+      }, /Is not an allowed function in MEMBER/);
+      
+      var safe = {
+        absolute: Math.abs,
+        squareRoot: Math.sqrt
+      };
+      assert.strictEqual(parser.evaluate('obj.absolute(-5)', { obj: safe }), 5);
+      assert.strictEqual(parser.evaluate('obj.squareRoot(16)', { obj: safe }), 4);
+    });
+
+    it('should block eval and Function constructor but allow registered custom functions', function () {
+      var parser = new Parser();
+
+      assert.throws(() => {
+        parser.evaluate('obj.evalFunc("malicious()")', { obj: context });
+      }, /Is not an allowed function in MEMBER/);
+      
+      assert.throws(() => {
+        parser.evaluate('obj.FunctionConstructor("return process")()', { obj: context });
+      }, /Is not an allowed function in MEMBER/);
+      
+      var customFunc = function (x) { return x * 2; };
+      parser.functions.double = customFunc;
+      var obj = { myDouble: customFunc };
+      assert.strictEqual(parser.evaluate('obj.myDouble(5)', { obj: obj }), 10);
+    });
   });
 });
