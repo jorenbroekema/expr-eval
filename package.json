@@ -58,7 +58,7 @@
   "author": "Joren Broekema",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jorenbroekema/expr-eval-fork/issues"
+    "url": "https://github.com/jorenbroekema/expr-eval/issues"
   },
-  "homepage": "https://github.com/jorenbroekema/expr-eval-fork#readme"
+  "homepage": "https://github.com/jorenbroekema/expr-eval#readme"
 }
