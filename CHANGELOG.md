@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.3] - 2026-02-02
+
+### Changed
+
+- Fixed some typos in package.json and changelog
+
+## [3.0.2] - 2026-02-02
+
+### Added
+
+- Publish actual current build files. Last version had outdated build files.
+
 ## [3.0.1] - 2025-12-07
 
 ### Added

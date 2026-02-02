@@ -1,6 +1,6 @@
 {
   "name": "expr-eval-fork",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "description": "Mathematical expression evaluator fork with exports map, prototype pollution and code injection security fixes",
   "main": "dist/bundle.js",
   "module": "dist/index.mjs",
@@ -58,7 +58,7 @@
   "author": "Joren Broekema",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jorenbroekema/expr-eval-fork/issues"
+    "url": "https://github.com/jorenbroekema/expr-eval/issues"
   },
-  "homepage": "https://github.com/jorenbroekema/expr-eval-fork#readme"
+  "homepage": "https://github.com/jorenbroekema/expr-eval#readme"
 }
