@@ -1,12 +1,16 @@
 import { INUMBER, IOP1, IOP2, IOP3, IVAR, IVARNAME, IFUNCALL, IFUNDEF, IEXPR, IEXPREVAL, IMEMBER, IENDSTATEMENT, IARRAY } from './instruction';
 
+// functions defined in expressions (f(x) = ...); their body is evaluated by this module.
+// A WeakSet does not keep them alive and does not expose them by name to other evaluations.
+var definedFunctions = new WeakSet();
+
 /**
  * Checks if a function reference 'f' is explicitly allowed to be executed.
  * This logic is the core security allowance gate.
  */
 function isAllowedFunc(f, expr, values) {
-  // function definition is included in registered functions
-  if (Object.values(expr.functions).includes(f)) return true;
+  // function defined in an expression, or registered in the parser's functions
+  if (definedFunctions.has(f) || Object.values(expr.functions).includes(f)) return true;
 
   for (const v of Object.values(values)) {
     if (typeof v === 'object' && v !== null) {
@@ -160,7 +164,7 @@ export default function evaluate(tokens, expr, values) {
           }
           return evaluate(n2, expr, scope);
         };
-        expr.functions['lambda_' + expr.functions.__counter++] = f;
+        definedFunctions.add(f);
         values[n1] = f;
         return f;
       })());
