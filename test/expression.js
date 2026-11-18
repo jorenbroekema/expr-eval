@@ -171,6 +171,22 @@ describe('Expression', function () {
       assert.strictEqual(parser.evaluate('f(x) = x > 1 ? x*f(x-1) : 1; f(6); f(5)'), 120);
     });
 
+    it('f(x) = x + 1; g(y) = f(y) * 2; g(1)', function () {
+      var parser = new Parser();
+      assert.strictEqual(parser.evaluate('f(x) = x + 1; g(y) = f(y) * 2; g(1)'), 4);
+      assert.strictEqual(parser.evaluate('f(x) = x + 1; g(y) = y; f(1)'), 2);
+      assert.deepStrictEqual(parser.evaluate('inc(x) = x + 1; incAll(l) = map(inc, l); incAll([1, 2])'), [2, 3]);
+    });
+
+    it('does not register the functions defined in an expression in the parser', function () {
+      var parser = new Parser();
+      var functionNames = Object.keys(parser.functions);
+      parser.evaluate('f(x) = x + 1; g(y) = f(y) * 2; g(1)');
+      assert.deepStrictEqual(Object.keys(parser.functions), functionNames);
+      assert.throws(function () { parser.evaluate('lambda_0(1)'); }, /undefined variable: lambda_0/);
+      assert.throws(function () { parser.evaluate('lambda_NaN(1)'); }, /undefined variable: lambda_NaN/);
+    });
+
     it('f(x) = x > 1 ? x*f(x-1) : 1', function () {
       var parser = new Parser();
       var obj = { f: null };
